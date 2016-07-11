@@ -1,0 +1,206 @@
+import com.caair.subscrib.google.api.Google2Api
+import org.apache.log4j.RollingFileAppender
+import org.scribe.builder.api.*
+
+// locations to search for config files that get merged into the main config;
+// config files can be ConfigSlurper scripts, Java properties files, or classes
+// in the classpath in ConfigSlurper format
+
+// grails.config.locations = [ "classpath:${appName}-config.properties",
+//                             "classpath:${appName}-config.groovy",
+//                             "file:${userHome}/.grails/${appName}-config.properties",
+//                             "file:${userHome}/.grails/${appName}-config.groovy"]
+
+// if (System.properties["${appName}.config.location"]) {
+//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
+// }
+
+grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
+
+// The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
+grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
+grails.mime.types = [
+        all          : '*/*',
+        atom         : 'application/atom+xml',
+        css          : 'text/css',
+        csv          : 'text/csv',
+        form         : 'application/x-www-form-urlencoded',
+        html         : ['text/html', 'application/xhtml+xml'],
+        js           : 'text/javascript',
+        json         : ['application/json', 'text/json'],
+        multipartForm: 'multipart/form-data',
+        rss          : 'application/rss+xml',
+        text         : 'text/plain',
+        hal          : ['application/hal+json', 'application/hal+xml'],
+        xml          : ['text/xml', 'application/xml']
+]
+
+// URL Mapping Cache Max Size, defaults to 5000
+//grails.urlmapping.cache.maxsize = 1000
+
+// What URL patterns should be processed by the resources plugin
+grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
+grails.resources.adhoc.includes = ['/fonts/*']
+
+// Legacy setting for codec used to encode data with ${}
+grails.views.default.codec = "html"
+
+// The default scope for controllers. May be prototype, session or singleton.
+// If unspecified, controllers are prototype scoped.
+grails.controllers.defaultScope = 'singleton'
+
+// GSP settings
+grails {
+    views {
+        gsp {
+            encoding = 'UTF-8'
+            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
+            codecs {
+                expression = 'html' // escapes values inside ${}
+                scriptlet = 'html' // escapes output from scriptlets in GSPs
+                taglib = 'none' // escapes output from taglibs
+                staticparts = 'none' // escapes output from static template parts
+            }
+        }
+        // escapes all not-encoded output at final stage of outputting
+        filteringCodecForContentType {
+            //'text/html' = 'html'
+        }
+    }
+}
+
+grails.converters.encoding = "UTF-8"
+// scaffolding templates configuration
+grails.scaffolding.templates.domainSuffix = 'Instance'
+
+// Set to false to use the new Grails 1.2 JSONBuilder in the render method
+grails.json.legacy.builder = false
+// enabled native2ascii conversion of i18n properties files
+grails.enable.native2ascii = true
+// packages to include in Spring bean scanning
+grails.spring.bean.packages = []
+// whether to disable processing of multi part requests
+grails.web.disable.multipart = false
+
+// request parameters to mask when logging exceptions
+grails.exceptionresolver.params.exclude = ['password']
+
+// configure auto-caching of queries by default (if false you can cache individual queries with 'cache: true')
+grails.hibernate.cache.queries = false
+
+grails.resources.adhoc.excludes = ['**/WEB-INF/**', '**/META-INF/**']
+
+environments {
+    development {
+        grails.logging.jul.usebridge = true
+    }
+    production {
+        grails.logging.jul.usebridge = false
+        // TODO: grails.serverURL = "http://www.changeme.com"
+    }
+}
+
+//  Path of Unix system.
+String path = "/tmp/logs/"
+
+
+// log4j configuration
+log4j = {
+    appenders {
+        appender new RollingFileAppender(
+                name: "errorLog",
+                maxFileSize: 1024,
+                file: "${path}error.log".toString(),
+                append: true,
+                threshold: org.apache.log4j.Level.ERROR,
+                layout: pattern(conversionPattern: '%d{dd MMM yyyy HH:mm:ss} %c{1} %M - %m%n')
+        )
+
+    }
+
+    root {
+        additivity = false
+        environments {
+            production {
+                error "errorLog"
+            }
+        }
+    }
+
+
+
+    error 'org.codehaus.groovy.grails.web.servlet',        // controllers
+            'org.codehaus.groovy.grails.web.pages',          // GSP
+            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
+            'org.codehaus.groovy.grails.commons',            // core / classloading
+            'org.codehaus.groovy.grails.plugins',            // plugins
+            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+            'org.springframework',
+            'org.hibernate',
+            'net.sf.ehcache.hibernate'
+}
+// Added by the Spring Security Core plugin:
+grails.plugin.springsecurity.rejectIfNoRule = true
+grails.plugin.springsecurity.fii.rejectPublicInvocations = true
+grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/login/loginSuccess'
+grails.plugin.springsecurity.errors.login.fail = "Invalid ID or Password."
+grails.plugin.springsecurity.password.algorithm = 'SHA-256'
+grails.plugin.springsecurity.password.hash.iterations = 1
+grails.plugin.springsecurity.apf.postOnly = false
+grails.plugin.springsecurity.userLookup.userDomainClassName = 'com.caair.entity.AppUser'
+grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.caair.entity.AppUserRole'
+grails.plugin.springsecurity.authority.className = 'com.caair.entity.Role'
+grails.plugin.springsecurity.requestMap.className = 'com.caair.entity.RequestMap'
+grails.plugin.springsecurity.securityConfigType = grails.plugin.springsecurity.SecurityConfigType.Requestmap
+grails.plugin.springsecurity.controllerAnnotations.staticRules = [
+        '/'              : ['permitAll'],
+        '/index'         : ['permitAll'],
+        '/index.gsp'     : ['permitAll'],
+        '/assets/**'     : ['permitAll'],
+        '/**/js/**'      : ['permitAll'],
+        '/**/css/**'     : ['permitAll'],
+        '/**/images/**'  : ['permitAll'],
+        '/**/favicon.ico': ['permitAll']
+]
+
+oauth {
+    providers {
+
+        twitter {
+
+            // @todo need to complete integration with twitter
+            api = TwitterApi
+            key = 'YOUR_KEY'
+            secret = 'YOUR_SECRET'
+
+            callback = "http://localhost:8080/CAAir/oauth/twitter/callback"
+            successUri = "http://localhost:8080/CAAir/oauthCallBack/twitter"
+            failureUri = "http://localhost:8080/CAAir/oauthCallBack/failure"
+        }
+        linkedin {
+
+            // @todo need to complete integration with LinkedIn
+            api = LinkedInApi
+            key = 'YOUR_KEY'
+            secret = 'YOUR_SECRET'
+
+            callback = "http://localhost:8080/CAAir/oauth/linkedin/callback"
+            successUri = "http://localhost:8080/CAAir/oauthCallBack/linkedin"
+            failureUri = "http://localhost:8080/CAAir/oauthCallBack/failure"
+        }
+        google {
+            // implemented in this assignment
+            api = Google2Api                    // Using oauth 2
+            key = '482698292614-oetbe1ggs2dn3bhi2evkidsq7fpj3tvl.apps.googleusercontent.com'
+            secret = 'GWK2CoXjHJQY6n3sW5iA2Ww9'
+
+            scope = 'https://www.googleapis.com/auth/userinfo.profile'
+
+            callback = "http://localhost:8080/CAAir/oauth/google/callback"
+            successUri = "http://localhost:8080/CAAir/oauthCallBack/google"
+            failureUri = "http://localhost:8080/CAAir/oauthCallBack/failure"
+        }
+    }
+}
